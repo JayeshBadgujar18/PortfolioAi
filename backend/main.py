@@ -4,10 +4,11 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import StreamingResponse
 from groq import Groq
 from pydantic import BaseModel
 from pypdf import PdfReader
-
 
 load_dotenv()
 
@@ -17,6 +18,14 @@ client=Groq(api_key=os.environ.get("GROQ_API_KEY"))
 model = "openai/gpt-oss-120b"
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 #parse resume
 class Experience(BaseModel):
@@ -69,26 +78,23 @@ say
 """
 
     response = client.chat.completions.create(
-
         model=model,
-
         messages=[
-
             {
                 "role":"system",
                 "content":system_prompt
             },
-
             {
                 "role":"user",
                 "content":question
             }
-
-        ]
-
+        ],
+        stream=True
     )
 
-    return response.choices[0].message.content
+    for chunk in response:
+        if chunk.choices[0].delta.content is not None:
+            yield chunk.choices[0].delta.content
 def parse_resume(resume_text):
     system_prompt = f"""
     You are an expert resume parser.
@@ -176,7 +182,4 @@ def home():
 def chat(request: ChatRequest):
     resume_text=read_pdf(Path("Jayesh_Resume.pdf"))
     resume=parse_resume(resume_text)
-    answer=ask_candidate(request.question, resume)
-    return {
-        "answer": answer
-    }
+    return StreamingResponse(ask_candidate(request.question, resume), media_type="text/event-stream")

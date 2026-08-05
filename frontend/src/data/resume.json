@@ -1,0 +1,70 @@
+{
+  "name": "Jayesh Deepak Badgujar",
+  "email": null,
+  "phone": "+91 82087 89115",
+  "total_experience_years": null,
+  "skills": [
+    "Java",
+    "C++",
+    "JavaScript",
+    "TypeScript",
+    "HTML5",
+    "CSS3",
+    "React.js",
+    "Redux Toolkit",
+    "Vite",
+    "Tailwind CSS",
+    "Responsive UI Design",
+    "Spring Boot",
+    "RESTful API Design",
+    "H2/SQL Databases",
+    "Multithreading & Concurrency",
+    "Idempotent System Design",
+    "Data Structures & Algorithms (HNSW, KD-Tree)",
+    "Retrieval-Augmented Generation (RAG)",
+    "Vector Databases",
+    "Ollama (Local LLMs)",
+    "Text Embeddings",
+    "Similarity Search (Cosine, Euclidean, Manhattan)",
+    "PCA Visualization",
+    "RSA-OAEP",
+    "AES-256-GCM",
+    "Hybrid Encryption",
+    "Secure Distributed Messaging",
+    "Distributed Mesh Networking",
+    "Git & GitHub",
+    "Vercel",
+    "REST API Testing",
+    "Maven",
+    "npm"
+  ],
+  "experiences": [],
+  "education": [
+    "Bachelor of Engineering - Information Technology, Sinhgad College of Engineering, Pune, Maharashtra"
+  ],
+  "projects": [
+    {
+      "title": "VectorDB - Vector Database Built From Scratch with RAG Pipeline",
+      "description": "Built from scratch with C++, HNSW, Ollama, REST API",
+      "github": "",
+      "live": ""
+    },
+    {
+      "title": "UPI Offline Mesh - Offline UPI Payment Simulation",
+      "description": "Via Bluetooth Mesh Network - Java, Spring Boot, H2, Cryptography",
+      "github": "",
+      "live": ""
+    },
+    {
+      "title": "NoteSaver - Pastebin-Style Note Sharing Web App",
+      "description": "React, Vite, Redux Toolkit, Tailwind CSS",
+      "github": "",
+      "live": ""
+    }
+  ],
+  "certifications": [
+    "AWS Cloud Practitioner Essentials - Amazon Web Services (In Progress)",
+    "The Complete Web Development Bootcamp - Udemy",
+    "Docker & Kubernetes: The Practical Guide - Udemy"
+  ]
+}
