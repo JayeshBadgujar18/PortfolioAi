@@ -1,5 +1,6 @@
 import json
 import os
+import time
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -14,7 +15,8 @@ load_dotenv()
 
 
 
-client=Groq(api_key=os.environ.get("GROQ_API_KEY"))
+_groq_key = os.environ.get("GROQ_API_KEY")
+client = Groq(api_key=_groq_key) if _groq_key else None
 model = "openai/gpt-oss-120b"
 
 app = FastAPI()
@@ -51,8 +53,9 @@ resume_schema = Resume.model_json_schema()
 
 class ChatRequest(BaseModel):
     question: str
+    stream: bool = True
 
-def ask_candidate(question: str, resume: Resume):
+def ask_candidate(question: str, resume: Resume, stream: bool = True):
 
     system_prompt = f"""
 You are an AI assistant representing a job candidate.
@@ -77,24 +80,63 @@ say
 5. Answer as if HR is interviewing this candidate.
 """
 
-    response = client.chat.completions.create(
-        model=model,
-        messages=[
-            {
-                "role":"system",
-                "content":system_prompt
-            },
-            {
-                "role":"user",
-                "content":question
-            }
-        ],
-        stream=True
-    )
+    # If the Groq client isn't configured, provide a local simulated response
+    if client is None:
+        summary = (
+            f"I can't reach the external API here. Based on the resume: "
+            f"Name: {resume.name or 'unknown'}. "
+            f"Skills: {', '.join(resume.skills) if resume.skills else 'none'}. "
+            f"Total experience: {resume.total_experience_years or 'unknown'}. "
+            f"Question: {question}"
+        )
 
-    for chunk in response:
-        if chunk.choices[0].delta.content is not None:
-            yield chunk.choices[0].delta.content
+        if stream:
+            # yield in small chunks to simulate streaming
+            for i in range(0, len(summary), 30):
+                yield summary[i:i+30]
+                time.sleep(0.02)
+        else:
+            return summary
+
+    # Otherwise use the configured Groq client
+    if stream:
+        response = client.chat.completions.create(
+            model=model,
+            messages=[
+                {
+                    "role":"system",
+                    "content":system_prompt
+                },
+                {
+                    "role":"user",
+                    "content":question
+                }
+            ],
+            stream=True
+        )
+
+        for chunk in response:
+            if chunk.choices[0].delta.content is not None:
+                yield chunk.choices[0].delta.content
+    else:
+        response = client.chat.completions.create(
+            model=model,
+            messages=[
+                {
+                    "role":"system",
+                    "content":system_prompt
+                },
+                {
+                    "role":"user",
+                    "content":question
+                }
+            ],
+            stream=False
+        )
+
+        # return the full content as a single string
+        full = response.choices[0].message.content
+        return full
 def parse_resume(resume_text):
     system_prompt = f"""
     You are an expert resume parser.
@@ -133,6 +175,10 @@ def parse_resume(resume_text):
 
     {resume_text}
     """
+    # If no external API client is configured, return a minimal empty Resume
+    if client is None:
+        return Resume()
+
     message_system={
         "role" : "system",
         "content" : system_prompt
@@ -182,4 +228,9 @@ def home():
 def chat(request: ChatRequest):
     resume_text=read_pdf(Path("Jayesh_Resume.pdf"))
     resume=parse_resume(resume_text)
-    return StreamingResponse(ask_candidate(request.question, resume), media_type="text/event-stream")
+    if request.stream:
+        return StreamingResponse(ask_candidate(request.question, resume, stream=True), media_type="text/event-stream")
+    else:
+        # non-streaming: return JSON payload
+        full = ask_candidate(request.question, resume, stream=False)
+        return {"answer": full}

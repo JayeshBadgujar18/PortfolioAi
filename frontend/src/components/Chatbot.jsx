@@ -42,7 +42,7 @@ export const Chatbot = () => {
       const response = await fetch('http://127.0.0.1:8000/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ question: text })
+        body: JSON.stringify({ question: text, stream: true })
       });
 
       if (!response.body) throw new Error('No readable stream');
