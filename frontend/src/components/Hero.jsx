@@ -92,10 +92,7 @@ export const Hero = () => {
           transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
           className="hero-copy"
         >
-          <div className="eyebrow">
-            <Sparkles size={16} />
-            <span>AI-powered portfolio</span>
-          </div>
+         
 
           <h1 className="hero-title">{resumeData.name}</h1>
           <p className="hero-body">
