@@ -34,8 +34,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-bottom: 1px solid var(--border-glass);
-  background: rgba(0, 0, 0, 0.2);
+  border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+  background: rgba(255, 255, 255, 0.96);
 }
 
 .chat-title {
@@ -94,8 +94,8 @@
 }
 
 .message-avatar.ai {
-  background: var(--bg-elevated);
-  border: 1px solid var(--border-glass);
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(15, 23, 42, 0.08);
   color: var(--accent-1);
 }
 
@@ -114,8 +114,8 @@
 }
 
 .message-bubble.ai {
-  background: var(--bg-elevated);
-  border: 1px solid var(--border-glass);
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(15, 23, 42, 0.08);
   color: var(--text-primary);
   border-top-left-radius: 4px;
 }
@@ -140,8 +140,8 @@
 
 .prompt-chip {
   white-space: nowrap;
-  background: var(--bg-elevated);
-  border: 1px solid var(--border-glass);
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(15, 23, 42, 0.08);
   color: var(--text-secondary);
   padding: 0.5rem 1rem;
   border-radius: var(--radius-pill);
@@ -164,15 +164,15 @@
   padding: 1rem 1.5rem;
   display: flex;
   gap: 0.75rem;
-  background: rgba(0, 0, 0, 0.2);
-  border-top: 1px solid var(--border-glass);
+  background: rgba(255, 255, 255, 0.96);
+  border-top: 1px solid rgba(15, 23, 42, 0.08);
   margin-top: 1rem;
 }
 
 .chat-input {
   flex-grow: 1;
-  background: var(--bg-elevated);
-  border: 1px solid var(--border-glass);
+  background: rgba(255, 255, 255, 0.98);
+  border: 1px solid rgba(15, 23, 42, 0.08);
   border-radius: var(--radius-pill);
   padding: 0.75rem 1.25rem;
   color: var(--text-primary);
@@ -199,7 +199,7 @@
 }
 
 .send-btn:disabled {
-  background: var(--bg-elevated);
+  background: #e2e8f0;
   color: var(--text-muted);
   cursor: not-allowed;
 }

@@ -1,6 +1,5 @@
 import React, { useEffect } from 'react';
 import Lenis from 'lenis';
-import { AnimatePresence } from 'framer-motion';
 
 import { Background } from './components/Background';
 import { Navbar } from './components/Navbar';

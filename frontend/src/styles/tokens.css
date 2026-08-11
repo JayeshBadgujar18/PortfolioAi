@@ -1,18 +1,20 @@
 :root {
   /* Base surface */
-  --bg-void: #05060a;
-  --bg-elevated: #0d0f16;
-  --bg-glass: rgba(255, 255, 255, 0.04);
-  --border-glass: rgba(255, 255, 255, 0.08);
+  --bg-void: #ffffff;
+  --bg-elevated: #f8fafc;
+  --bg-glass: rgba(255, 255, 255, 0.88);
+  --border-glass: rgba(15, 23, 42, 0.08);
 
   /* Accent gradient — pick ONE hero gradient and reuse everywhere */
-  --accent-1: #7c3aed;   /* violet */
-  --accent-2: #06b6d4;   /* cyan */
-  --accent-gradient: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+  --accent-1: #f6a7c1;   /* pastel pink */
+  --accent-2: #b9a7ff;   /* pastel purple */
+  --accent-3: #f7b37d;   /* pastel orange */
+  --accent-blue: #4f8ef7;
+  --accent-gradient: linear-gradient(135deg, var(--accent-1), var(--accent-2) 52%, var(--accent-3));
 
   /* Text */
-  --text-primary: #f4f4f5;
-  --text-secondary: #9ca3af;
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
   --text-muted: #6b7280;
 
   /* Typography */
@@ -23,8 +25,8 @@
   /* Radius & Shadow */
   --radius-card: 20px;
   --radius-pill: 999px;
-  --shadow-glow: 0 0 40px rgba(124, 58, 237, 0.25);
-  --shadow-card: 0 8px 32px rgba(0, 0, 0, 0.4);
+  --shadow-glow: 0 18px 45px rgba(79, 142, 247, 0.18);
+  --shadow-card: 0 18px 45px rgba(15, 23, 42, 0.08);
 
   /* Motion */
   --ease-premium: cubic-bezier(0.16, 1, 0.3, 1); /* smooth "expo out" */
@@ -54,7 +56,7 @@ a {
 }
 
 a:hover {
-  color: var(--accent-1);
+  color: var(--accent-blue);
 }
 
 button {
