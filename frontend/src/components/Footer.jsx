@@ -13,9 +13,9 @@ export const Footer = () => {
     }}>
       <div className="container" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
         <div style={{ display: 'flex', gap: '1.5rem' }}>
-          <a href="#" className="social-btn"><GithubIcon size={20} /></a>
-          <a href="#" className="social-btn"><LinkedinIcon size={20} /></a>
-          <a href={`mailto:${resumeData.email || 'badgujarjayesh2003@gmail.com'}`} className="social-btn"><Mail size={20} /></a>
+          <a href="https://github.com/JayeshBadgujar18" className="social-btn"><GithubIcon size={20} /></a>
+          <a href="https://www.linkedin.com/in/jayesh-badgujar-439911335/" className="social-btn"><LinkedinIcon size={20} /></a>
+          <a href={`mailto:${resumeData.email || 'badgujarjayesh491@gmail.com'}`} className="social-btn"><Mail size={20} /></a>
         </div>
         <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem' }}>
           Built with React & FastAPI • Designed with precision

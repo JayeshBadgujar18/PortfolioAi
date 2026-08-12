@@ -95,9 +95,7 @@ export const Hero = () => {
          
 
           <h1 className="hero-title">{resumeData.name}</h1>
-          <p className="hero-body">
-            Clean systems, responsive interfaces, and practical AI workflows built with a calm, professional finish.
-          </p>
+         
 
           <div className="avatar-stage" aria-label="Cartoon avatar illustration">
             <div className="avatar-orbit orbit-pink" />
