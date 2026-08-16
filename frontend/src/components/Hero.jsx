@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { motion } from 'framer-motion';
+import React, { useState, useRef, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   ArrowRight,
   Code2,
@@ -9,78 +9,145 @@ import {
   Sparkles,
   FileText,
   UserRound,
+  Bot,
+  User,
+  RotateCcw,
+  Maximize2,
+  Minimize2,
 } from 'lucide-react';
 import resumeData from '../data/resume.json';
 import './Hero.css';
 
+const buttonQuestions = {
+  Me: 'Who are you? I want to know more about you.',
+  Projects: 'What are your projects? What are you working on right now?',
+  Skills: 'What are your technical skills? What technologies do you work with?',
+  Contact: 'How can I contact you? What is your email and phone number?',
+  Location: 'Where are you located? What is your current location?',
+  Resume: 'Can you summarize your resume? What is your work experience?',
+};
+
 export const Hero = () => {
   const [searchQuery, setSearchQuery] = useState('');
-
-  const sections = {
-    me: () => scrollToId('home'),
-    projects: () => scrollToId('projects'),
-    skills: () => scrollToId('skills'),
-    contact: () => scrollToId('contact'),
-    location: () => window.open('https://www.google.com/maps/search/Pune,+Maharashtra', '_blank', 'noopener,noreferrer'),
-    resume: () => window.open('http://127.0.0.1:8000/Jayesh_Resume.pdf', '_blank', 'noopener,noreferrer'),
-  };
+  const [messages, setMessages] = useState([]);
+  const [isTyping, setIsTyping] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const aiMessagesRef = useRef(null);
+  const messagesEndRef = useRef(null);
+  const inputRef = useRef(null);
 
   const quickButtons = [
-    { label: 'Me', icon: UserRound, action: sections.me },
-    { label: 'Projects', icon: FolderKanban, action: sections.projects },
-    { label: 'Skills', icon: Code2, action: sections.skills },
-    { label: 'Contact', icon: Mail, action: sections.contact },
-    { label: 'Location', icon: MapPin, action: sections.location },
-    { label: 'Resume', icon: FileText, action: sections.resume },
+    { label: 'Me', icon: UserRound },
+    { label: 'Projects', icon: FolderKanban },
+    { label: 'Skills', icon: Code2 },
+    { label: 'Contact', icon: Mail },
+    { label: 'Location', icon: MapPin },
+    { label: 'Resume', icon: FileText },
   ];
 
-  function scrollToId(id) {
-    const element = document.getElementById(id);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  const scrollToMessages = () => {
+    const container = aiMessagesRef.current;
+    if (container) {
+      container.scrollTo({
+        top: container.scrollHeight,
+        behavior: 'smooth',
+      });
+      return;
+    }
+
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
+  };
+
+  useEffect(() => {
+    scrollToMessages();
+  }, [messages, isTyping]);
+
+  useEffect(() => {
+    if (!isFullscreen) {
+      document.body.classList.remove('ai-fullscreen-open');
+      return;
+    }
+
+    document.body.classList.add('ai-fullscreen-open');
+    return () => {
+      document.body.classList.remove('ai-fullscreen-open');
+    };
+  }, [isFullscreen]);
+
+  async function submitToAI(text) {
+    if (!text.trim() || isTyping) return;
+
+    const userMsg = { role: 'user', content: text };
+    setMessages(prev => [...prev, userMsg]);
+    setSearchQuery('');
+    setIsTyping(true);
+
+    // Add placeholder AI message
+    setMessages(prev => [...prev, { role: 'ai', content: '' }]);
+
+    try {
+      const response = await fetch('http://127.0.0.1:8000/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ question: text, stream: true }),
+      });
+
+      if (!response.body) throw new Error('No readable stream');
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let done = false;
+      let fullContent = '';
+
+      while (!done) {
+        const { value, done: doneReading } = await reader.read();
+        done = doneReading;
+        if (value) {
+          const chunk = decoder.decode(value);
+          fullContent += chunk;
+          setMessages(prev => {
+            const newMessages = [...prev];
+            newMessages[newMessages.length - 1] = { role: 'ai', content: fullContent };
+            return newMessages;
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Chat error:', error);
+      setMessages(prev => {
+        const newMessages = [...prev];
+        newMessages[newMessages.length - 1] = {
+          role: 'ai',
+          content: "Sorry, I couldn't connect to the server right now. Please make sure the backend is running.",
+        };
+        return newMessages;
+      });
+    } finally {
+      setIsTyping(false);
     }
   }
 
   function handleSearchSubmit(event) {
     event.preventDefault();
-    const query = searchQuery.trim().toLowerCase();
+    submitToAI(searchQuery);
+  }
 
-    if (!query) {
-      scrollToId('projects');
-      return;
+  function handleQuickButton(label) {
+    const question = buttonQuestions[label];
+    if (question) {
+      setSearchQuery(question);
+      // Small delay so the user sees the text appear in the input first
+      setTimeout(() => {
+        submitToAI(question);
+      }, 150);
     }
+  }
 
-    if (query.includes('me') || query.includes('about') || query.includes('profile')) {
-      sections.me();
-      return;
-    }
-
-    if (query.includes('project')) {
-      sections.projects();
-      return;
-    }
-
-    if (query.includes('skill') || query.includes('stack') || query.includes('tech')) {
-      sections.skills();
-      return;
-    }
-
-    if (query.includes('contact') || query.includes('email') || query.includes('hire')) {
-      sections.contact();
-      return;
-    }
-
-    if (query.includes('location') || query.includes('where')) {
-      sections.location();
-      return;
-    }
-
-    if (query.includes('resume') || query.includes('cv')) {
-      sections.resume();
-      return;
-    }
-
-    sections.projects();
+  function handleReset() {
+    setMessages([]);
+    setSearchQuery('');
+    setIsFullscreen(false);
+    inputRef.current?.focus();
   }
 
   return (
@@ -92,10 +159,8 @@ export const Hero = () => {
           transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
           className="hero-copy"
         >
-         
 
           <h1 className="hero-title">{resumeData.name}</h1>
-         
 
           <div className="avatar-stage" aria-label="Cartoon avatar illustration">
             <div className="avatar-orbit orbit-pink" />
@@ -136,17 +201,22 @@ export const Hero = () => {
           </div>
 
           <form className="search-shell" onSubmit={handleSearchSubmit}>
-            <div className="search-label">Ask the portfolio</div>
+            <div className="search-label">
+              <Sparkles size={14} className="search-label-icon" />
+              AI-Powered Portfolio
+            </div>
             <div className="search-bar">
               <input
+                ref={inputRef}
                 className="search-input"
                 type="text"
                 placeholder="Ask me anything..."
                 value={searchQuery}
                 onChange={(event) => setSearchQuery(event.target.value)}
                 aria-label="Ask me anything search"
+                disabled={isTyping}
               />
-              <button className="search-button" type="submit" aria-label="Search portfolio">
+              <button className="search-button" type="submit" aria-label="Ask AI" disabled={!searchQuery.trim() || isTyping}>
                 <ArrowRight size={20} />
               </button>
             </div>
@@ -163,7 +233,8 @@ export const Hero = () => {
                   className="nav-tile"
                   whileHover={{ y: -4, scale: 1.01 }}
                   whileTap={{ scale: 0.98 }}
-                  onClick={button.action}
+                  onClick={() => handleQuickButton(button.label)}
+                  disabled={isTyping}
                 >
                   <span className="nav-tile-label">{button.label}</span>
                   <ButtonIcon size={18} className="nav-tile-icon" />
@@ -172,6 +243,59 @@ export const Hero = () => {
             })}
           </div>
         </motion.div>
+
+        {/* AI Response Area */}
+        <AnimatePresence>
+          {messages.length > 0 && (
+            <motion.div
+              className={`ai-response-area glass-card${isFullscreen ? ' fullscreen' : ''}`}
+              initial={{ opacity: 0, y: 30, scale: 0.97 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 30, scale: 0.97 }}
+              transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+            >
+              <div className="ai-response-header">
+                <div className="ai-response-title">
+                  <Bot size={20} className="ai-icon" />
+                  <span>AI Assistant</span>
+                </div>
+                <div className="ai-header-actions">
+                  <button type="button" className="ai-action-btn" onClick={() => setIsFullscreen(f => !f)} aria-label={isFullscreen ? 'Exit fullscreen' : 'Fullscreen'} title={isFullscreen ? 'Exit fullscreen' : 'Fullscreen'}>
+                    {isFullscreen ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
+                  </button>
+                  <button type="button" className="ai-action-btn ai-reset-btn" onClick={handleReset} aria-label="Reset conversation" title="New conversation">
+                    <RotateCcw size={16} />
+                  </button>
+                </div>
+              </div>
+
+              <div className="ai-messages" ref={aiMessagesRef} data-lenis-prevent>
+                {messages.map((msg, i) => (
+                  <motion.div
+                    key={i}
+                    className={`ai-msg-wrapper ${msg.role}`}
+                    initial={{ opacity: 0, y: 12 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.35, delay: 0.05 }}
+                  >
+                    <div className={`ai-msg-avatar ${msg.role}`}>
+                      {msg.role === 'ai' ? <Bot size={16} /> : <User size={16} />}
+                    </div>
+                    <div className={`ai-msg-bubble ${msg.role}`}>
+                      {msg.content}
+                      {msg.content === '' && isTyping && msg.role === 'ai' && (
+                        <div className="ai-typing-indicator">
+                          <span></span><span></span><span></span>
+                        </div>
+                      )}
+                    </div>
+                  </motion.div>
+                ))}
+                <div ref={messagesEndRef} />
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </section>
   );
